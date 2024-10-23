@@ -1,0 +1,245 @@
+// Define color variables for priorities and overall theme
+$primary-color: #1abc9c;
+$secondary-color: #3498db;
+$hover-primary: #16a085;
+$hover-secondary: #2980b9;
+$remove-color: red;
+$hover-remove: darkred;
+$overdue-color: #ff6347;
+$text-color: #fff;
+$completed-faded-color: rgba(255, 255, 255, 0.6);
+
+// Calmer background color (soft blue gradient)
+$background-gradient: linear-gradient(135deg, #89f7fe, #66a6ff);
+
+// Define container background color
+$container-background: #3a3a55; // Dark purple-gray
+
+// Shine effect for the header
+@keyframes shine {
+  0% {
+    background-position: -100px;
+  }
+  100% {
+    background-position: 200px;
+  }
+}
+
+// General App Styles
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: $background-gradient;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  color: $text-color;
+
+  .App-header {
+    background-color: $container-background;
+    padding: 30px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 700px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 3rem;
+      text-align: center;
+      color: $text-color;
+      background: linear-gradient(90deg, #fff, #ff8c00, #fff);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      background-size: 200px;
+      animation: shine 3s infinite linear;
+    }
+
+    // Task Input Form
+    .task-form {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 20px;
+
+      label {
+        display: flex;
+        flex-direction: column;
+        font-weight: bold;
+        color: $text-color;
+      }
+
+      input,
+      select {
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        background-color: #fff;
+        color: #333;
+      }
+
+      // Extend the "Name the Task" input field
+      label:first-child {
+        flex-grow: 2; // Makes the task name input take more space
+      }
+
+      label:nth-child(2) {
+        flex-grow: 1; // Keeps due date input smaller
+        max-width: 180px;
+      }
+
+      label:nth-child(3) {
+        flex-grow: 1; // Keeps priority dropdown smaller
+        max-width: 140px;
+      }
+
+      button {
+        padding: 12px 20px;
+        background-color: $primary-color;
+        border: none;
+        border-radius: 8px;
+        color: $text-color;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        flex-shrink: 0; // Prevent the button from shrinking
+
+        &:hover {
+          background-color: $hover-primary;
+        }
+      }
+    }
+
+    // Search Bar
+    .search-bar {
+      margin-bottom: 20px;
+
+      input {
+        padding: 12px;
+        width: 100%;
+        max-width: 400px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+      }
+    }
+
+    // Task List
+    ul {
+      list-style-type: none;
+      padding: 0;
+      width: 100%;
+      max-width: 600px;
+
+      li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background-color: rgba(255, 255, 255, 0.1);
+        margin-bottom: 10px;
+        border-radius: 8px;
+        color: $text-color;
+        border: 1px solid transparent;
+
+        &.high {
+          background-color: #e74c3c !important;
+          border: 1px solid #e74c3c;
+        }
+
+        &.medium {
+          background-color: #f39c12 !important;
+          border: 1px solid #f39c12;
+        }
+
+        &.low {
+          background-color: #2ecc71 !important;
+          border: 1px solid #2ecc71 !important;
+        }
+
+        &.overdue {
+          border-color: $overdue-color;
+        }
+
+        span {
+          flex: 1;
+          margin-right: 20px;
+          text-align: left;
+          font-size: 18px;
+          cursor: pointer;
+
+          &.completed {
+            text-decoration: line-through;
+            color: $completed-faded-color;
+          }
+        }
+
+        button {
+          padding: 10px 15px;
+          margin-left: 10px;
+          border-radius: 5px;
+
+          &:first-of-type {
+            background-color: $secondary-color;
+
+            &:hover {
+              background-color: $hover-secondary;
+            }
+          }
+
+          &:last-of-type {
+            background-color: $remove-color;
+
+            &:hover {
+              background-color: $hover-remove;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .task-form {
+      flex-direction: column;
+      align-items: center;
+
+      input,
+      select,
+      button {
+        width: 100%;
+        max-width: 400px;
+      }
+    }
+
+    .search-bar input {
+      width: 100%;
+    }
+
+    ul li {
+      flex-direction: column;
+      align-items: flex-start;
+
+      span {
+        margin-bottom: 10px;
+      }
+
+      button {
+        margin: 5px 0;
+      }
+    }
+  }
+}
+
+// Full background for large screens
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: $background-gradient;
+}

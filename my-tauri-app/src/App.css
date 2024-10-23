@@ -1,0 +1,40 @@
+/* Global body styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+}
+
+/* General styles for App container */
+.App {
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+/* Additional global styles */
+h1 {
+  color: #2c3e50;
+  font-size: 2.5em;
+  margin-bottom: 20px;
+}
+
+input {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+button {
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 1em;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Global button styles */
+button:hover {
+  background-color: #ddd;
+}
