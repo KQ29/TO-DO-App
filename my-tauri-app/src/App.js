@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import './App.scss'; // Import SCSS styles
-import { getTasks, addTask, deleteTask, updateTask } from './TaskAPI'; // Импорт всех API функций
+import { getTasks, addTask, deleteTask, updateTask } from './TaskAPI'; // Import all API functions
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -12,7 +12,7 @@ function App() {
   const [isEditing, setIsEditing] = useState(false);
   const [currentTaskId, setCurrentTaskId] = useState(null); // Track the task ID instead of index
 
-  // Загружаем задачи с сервера при монтировании компонента
+  // Load tasks from the server when the component is mounted
   useEffect(() => {
     async function fetchTasks() {
       const fetchedTasks = await getTasks();
@@ -21,7 +21,7 @@ function App() {
     fetchTasks();
   }, []);
 
-  // Функция добавления или редактирования задачи
+  // Function to add or edit a task
   const handleAddOrEditTask = async () => {
     if (inputValue.trim() === '') return;
     const trimmedTask = inputValue.trim();
@@ -47,32 +47,32 @@ function App() {
         setIsEditing(false);
       }
     } else {
-      const addedTask = await addTask(newTask); // Добавляем задачу на сервере
-      setTasks([...tasks, { ...newTask, id: addedTask.id }]); // Добавляем в локальный стейт с ID
+      const addedTask = await addTask(newTask); // Add the task on the server
+      setTasks([...tasks, { ...newTask, id: addedTask.id }]); // Add to local state with ID
     }
 
-    // Сбрасываем значения полей
+    // Reset form fields
     setInputValue('');
     setPriority('low');
     setDueDate('');
   };
 
-  // Функция удаления задачи
+  // Function to remove a task
   const handleRemoveTask = async (taskId) => {
     const taskToDelete = tasks.find((task) => task.id === taskId);
     if (taskToDelete && taskToDelete.id) {
-      await deleteTask(taskToDelete.id); // Удаляем задачу с сервера
+      await deleteTask(taskToDelete.id); // Remove the task from the server
       const newTasks = tasks.filter((task) => task.id !== taskToDelete.id);
       setTasks(newTasks);
     }
   };
 
-  // Функция изменения статуса выполнения задачи
+  // Function to toggle task completion status
   const toggleCompleteTask = async (taskId) => {
     const taskToUpdate = tasks.find((task) => task.id === taskId);
     const updatedTask = { ...taskToUpdate, completed: !taskToUpdate.completed };
     if (taskToUpdate && taskToUpdate.id) {
-      await updateTask(taskToUpdate.id, updatedTask); // Обновляем задачу на сервере
+      await updateTask(taskToUpdate.id, updatedTask); // Update the task on the server
       const newTasks = tasks.map((task) =>
         task.id === taskToUpdate.id ? { ...task, completed: !task.completed } : task
       );
@@ -80,7 +80,7 @@ function App() {
     }
   };
 
-  // Функция редактирования задачи
+  // Function to edit a task
   const handleEditTask = (taskId) => {
     const taskToEdit = tasks.find((task) => task.id === taskId);
     setInputValue(taskToEdit.name);
@@ -90,12 +90,12 @@ function App() {
     setCurrentTaskId(taskId);
   };
 
-  // Поиск задач
+  // Search tasks
   const filteredTasks = tasks.filter((task) =>
     task.name && task.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Проверка просроченных задач
+  // Check for overdue tasks
   const isTaskOverdue = (task) => {
     const today = new Date().toISOString().split('T')[0];
     return task.dueDate && task.dueDate < today && !task.completed;

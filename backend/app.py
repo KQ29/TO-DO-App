@@ -2,24 +2,24 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from database import db, Task  
 
-# Инициализация приложения Flask
+# Initialize Flask application
 app = Flask(__name__)
 
-# Разрешаем кросс-доменные запросы для взаимодействия с фронтендом
+# Allow cross-domain requests for interaction with the frontend
 CORS(app)
 
-# Подключение к базе данных SQLite
+# Connect to the SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///existing_todo.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Инициализация базы данных с приложением Flask
+# Initialize the database with the Flask application
 db.init_app(app)
 
-# Создание таблиц при запуске приложения
+# Create tables when the application starts
 with app.app_context():
     db.create_all()
 
-# Маршрут для получения всех задач
+# Route to get all tasks
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
     tasks = Task.query.all()
@@ -32,7 +32,7 @@ def get_tasks():
     } for task in tasks]
     return jsonify(tasks_list)
 
-# Маршрут для добавления новой задачи
+# Route to add a new task
 @app.route('/tasks', methods=['POST'])
 def add_task():
     data = request.json
@@ -46,7 +46,7 @@ def add_task():
     db.session.commit()
     return jsonify({'message': 'Task added successfully'}), 201
 
-# Маршрут для обновления задачи
+# Route to update a task
 @app.route('/tasks/<int:task_id>', methods=['PUT'])
 def update_task(task_id):
     task = Task.query.get(task_id)
@@ -61,7 +61,7 @@ def update_task(task_id):
         return jsonify({"message": "Task updated successfully!"}), 200
     return jsonify({"message": "Task not found"}), 404
 
-# Маршрут для удаления задачи
+# Route to delete a task
 @app.route('/tasks/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
     task = Task.query.get(task_id)
@@ -71,6 +71,6 @@ def delete_task(task_id):
         return jsonify({"message": "Task deleted successfully!"}), 200
     return jsonify({"message": "Task not found"}), 404
 
-# Запуск сервера Flask
+# Run the Flask server
 if __name__ == '__main__':
     app.run(debug=True)

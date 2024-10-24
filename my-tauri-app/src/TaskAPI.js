@@ -1,6 +1,6 @@
 const API_URL = "http://127.0.0.1:5000/tasks";
 
-// Получить все задачи
+// Get all tasks
 export const getTasks = async () => {
   try {
     const response = await fetch(API_URL);
@@ -11,7 +11,7 @@ export const getTasks = async () => {
   }
 };
 
-// Добавить новую задачу
+// Add a new task
 export const addTask = async (task) => {
   try {
     const response = await fetch(API_URL, {
@@ -27,7 +27,7 @@ export const addTask = async (task) => {
   }
 };
 
-// Обновить задачу
+// Update a task
 export const updateTask = async (taskId, updatedTask) => {
     try {
       const response = await fetch(`${API_URL}/${taskId}`, {
@@ -43,7 +43,7 @@ export const updateTask = async (taskId, updatedTask) => {
     }
   };  
 
-// Удалить задачу
+// Delete a task
 export const deleteTask = async (taskId) => {
   try {
     const response = await fetch(`${API_URL}/${taskId}`, {
