@@ -3,17 +3,17 @@ $primary-color: #1abc9c;
 $secondary-color: #3498db;
 $hover-primary: #16a085;
 $hover-secondary: #2980b9;
-$remove-color: red;
-$hover-remove: darkred;
+$remove-color: #e57373;  
+$hover-remove: #af4448;  
 $overdue-color: #ff6347;
 $text-color: #fff;
 $completed-faded-color: rgba(255, 255, 255, 0.6);
 
-// Calmer background color (soft blue gradient)
-$background-gradient: linear-gradient(135deg, #89f7fe, #66a6ff);
+// Night mode gradient background (6 colors)
+$background-gradient: linear-gradient(135deg, #2c3e50, #34495e, #4b6584, #6a89cc, #38ada9, #3c6382);
 
 // Define container background color
-$container-background: #3a3a55; // Dark purple-gray
+$container-background: #2d3436; 
 
 // Shine effect for the header
 @keyframes shine {
@@ -186,17 +186,17 @@ $container-background: #3a3a55; // Dark purple-gray
 
           &:first-of-type {
             background-color: $secondary-color;
-
+        
             &:hover {
               background-color: $hover-secondary;
             }
           }
-
+        
           &:last-of-type {
-            background-color: $remove-color;
-
+            background-color: $remove-color; 
+        
             &:hover {
-              background-color: $hover-remove;
+              background-color: $hover-remove; 
             }
           }
         }
