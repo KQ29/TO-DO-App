@@ -1,73 +1,101 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import './App.scss'; // Import SCSS styles
+import { getTasks, addTask, deleteTask, updateTask } from './TaskAPI'; // Импорт всех API функций
 
 function App() {
-  const [tasks, setTasks] = useState(() => {
-    const savedTasks = localStorage.getItem('tasks');
-    return savedTasks ? JSON.parse(savedTasks) : [];
-  });
-
+  const [tasks, setTasks] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [priority, setPriority] = useState('low');
   const [dueDate, setDueDate] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditing, setIsEditing] = useState(false);
-  const [currentTaskIndex, setCurrentTaskIndex] = useState(null);
+  const [currentTaskId, setCurrentTaskId] = useState(null); // Track the task ID instead of index
 
+  // Загружаем задачи с сервера при монтировании компонента
   useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }, [tasks]);
+    async function fetchTasks() {
+      const fetchedTasks = await getTasks();
+      setTasks(fetchedTasks);
+    }
+    fetchTasks();
+  }, []);
 
-  const handleAddOrEditTask = () => {
+  // Функция добавления или редактирования задачи
+  const handleAddOrEditTask = async () => {
     if (inputValue.trim() === '') return;
     const trimmedTask = inputValue.trim();
 
     const newTask = {
-      text: trimmedTask,
+      name: trimmedTask,
       priority,
       dueDate,
       completed: false,
     };
 
     if (isEditing) {
-      const updatedTasks = tasks.map((task, index) =>
-        index === currentTaskIndex ? newTask : task
-      );
-      setTasks(updatedTasks);
-      setIsEditing(false);
+      // Find task by ID
+      const taskToEdit = tasks.find((task) => task.id === currentTaskId);
+      if (taskToEdit && taskToEdit.id) {
+        // Update the task on the server
+        await updateTask(taskToEdit.id, newTask);
+        // Update task in local state
+        const updatedTasks = tasks.map((task) =>
+          task.id === taskToEdit.id ? { ...task, ...newTask } : task
+        );
+        setTasks(updatedTasks);
+        setIsEditing(false);
+      }
     } else {
-      setTasks([...tasks, newTask]);
+      const addedTask = await addTask(newTask); // Добавляем задачу на сервере
+      setTasks([...tasks, { ...newTask, id: addedTask.id }]); // Добавляем в локальный стейт с ID
     }
+
+    // Сбрасываем значения полей
     setInputValue('');
     setPriority('low');
     setDueDate('');
   };
 
-  const handleRemoveTask = (index) => {
-    const newTasks = tasks.filter((_, i) => i !== index);
-    setTasks(newTasks);
+  // Функция удаления задачи
+  const handleRemoveTask = async (taskId) => {
+    const taskToDelete = tasks.find((task) => task.id === taskId);
+    if (taskToDelete && taskToDelete.id) {
+      await deleteTask(taskToDelete.id); // Удаляем задачу с сервера
+      const newTasks = tasks.filter((task) => task.id !== taskToDelete.id);
+      setTasks(newTasks);
+    }
   };
 
-  const toggleCompleteTask = (index) => {
-    const newTasks = tasks.map((task, i) =>
-      i === index ? { ...task, completed: !task.completed } : task
-    );
-    setTasks(newTasks);
+  // Функция изменения статуса выполнения задачи
+  const toggleCompleteTask = async (taskId) => {
+    const taskToUpdate = tasks.find((task) => task.id === taskId);
+    const updatedTask = { ...taskToUpdate, completed: !taskToUpdate.completed };
+    if (taskToUpdate && taskToUpdate.id) {
+      await updateTask(taskToUpdate.id, updatedTask); // Обновляем задачу на сервере
+      const newTasks = tasks.map((task) =>
+        task.id === taskToUpdate.id ? { ...task, completed: !task.completed } : task
+      );
+      setTasks(newTasks);
+    }
   };
 
-  const handleEditTask = (index) => {
-    setInputValue(tasks[index].text);
-    setPriority(tasks[index].priority);
-    setDueDate(tasks[index].dueDate);
+  // Функция редактирования задачи
+  const handleEditTask = (taskId) => {
+    const taskToEdit = tasks.find((task) => task.id === taskId);
+    setInputValue(taskToEdit.name);
+    setPriority(taskToEdit.priority);
+    setDueDate(taskToEdit.dueDate);
     setIsEditing(true);
-    setCurrentTaskIndex(index);
+    setCurrentTaskId(taskId);
   };
 
+  // Поиск задач
   const filteredTasks = tasks.filter((task) =>
-    task.text.toLowerCase().includes(searchQuery.toLowerCase())
+    task.name && task.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Проверка просроченных задач
   const isTaskOverdue = (task) => {
     const today = new Date().toISOString().split('T')[0];
     return task.dueDate && task.dueDate < today && !task.completed;
@@ -129,23 +157,23 @@ function App() {
 
         {/* Display the list of tasks */}
         <ul>
-          {filteredTasks.map((task, index) => (
+          {filteredTasks.map((task) => (
             <li
-              key={index}
+              key={task.id}
               className={`${task.priority} ${isTaskOverdue(task) ? 'overdue' : ''}`}
             >
               <span
                 className={task.completed ? 'completed' : ''}
-                onClick={() => toggleCompleteTask(index)}
+                onClick={() => toggleCompleteTask(task.id)}
               >
-                {task.text} {task.dueDate && ` (Due: ${task.dueDate})`}
+                {task.name} {task.dueDate && ` (Due: ${task.dueDate})`}
               </span>
 
               {/* Button to edit the task */}
-              <button onClick={() => handleEditTask(index)}>Edit</button>
+              <button onClick={() => handleEditTask(task.id)}>Edit</button>
 
               {/* Button to remove the task */}
-              <button onClick={() => handleRemoveTask(index)}>Remove</button>
+              <button onClick={() => handleRemoveTask(task.id)}>Remove</button>
             </li>
           ))}
         </ul>
