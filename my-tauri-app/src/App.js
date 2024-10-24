@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import './App.scss'; // Import SCSS styles
-import { getTasks, addTask, deleteTask, updateTask } from './TaskAPI'; // Import all API functions
+import { getTasks, addTask, deleteTask, updateTask } from './TaskAPI'; // Import Task API functions
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -10,9 +10,9 @@ function App() {
   const [dueDate, setDueDate] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditing, setIsEditing] = useState(false);
-  const [currentTaskId, setCurrentTaskId] = useState(null); // Track the task ID instead of index
+  const [currentTaskId, setCurrentTaskId] = useState(null); // Track task ID
 
-  // Load tasks from the server when the component is mounted
+  // Fetch tasks from the server when the component mounts
   useEffect(() => {
     async function fetchTasks() {
       const fetchedTasks = await getTasks();
@@ -21,12 +21,12 @@ function App() {
     fetchTasks();
   }, []);
 
-  // Function to add or edit a task
+  // Function to handle adding or editing a task
   const handleAddOrEditTask = async () => {
     if (inputValue.trim() === '') return;
     const trimmedTask = inputValue.trim();
 
-    const newTask = {
+    const taskData = {
       name: trimmedTask,
       priority,
       dueDate,
@@ -34,68 +34,62 @@ function App() {
     };
 
     if (isEditing) {
-      // Find task by ID
-      const taskToEdit = tasks.find((task) => task.id === currentTaskId);
-      if (taskToEdit && taskToEdit.id) {
-        // Update the task on the server
-        await updateTask(taskToEdit.id, newTask);
-        // Update task in local state
-        const updatedTasks = tasks.map((task) =>
-          task.id === taskToEdit.id ? { ...task, ...newTask } : task
-        );
-        setTasks(updatedTasks);
-        setIsEditing(false);
-      }
+      // If editing, update the task on the server
+      await updateTask(currentTaskId, taskData); // Make sure to send the correct task ID
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === currentTaskId ? { ...task, ...taskData } : task
+        )
+      );
+      // Reset the form state after editing
+      setIsEditing(false);
+      setCurrentTaskId(null);
     } else {
-      const addedTask = await addTask(newTask); // Add the task on the server
-      setTasks([...tasks, { ...newTask, id: addedTask.id }]); // Add to local state with ID
+      // If adding, add a new task on the server
+      const addedTask = await addTask(taskData);
+      setTasks([...tasks, { ...taskData, id: addedTask.id }]);
     }
 
-    // Reset form fields
+    // Clear the input fields
     setInputValue('');
     setPriority('low');
     setDueDate('');
   };
 
-  // Function to remove a task
+  // Function to handle removing a task
   const handleRemoveTask = async (taskId) => {
-    const taskToDelete = tasks.find((task) => task.id === taskId);
-    if (taskToDelete && taskToDelete.id) {
-      await deleteTask(taskToDelete.id); // Remove the task from the server
-      const newTasks = tasks.filter((task) => task.id !== taskToDelete.id);
-      setTasks(newTasks);
-    }
+    await deleteTask(taskId); // Remove the task from the server
+    setTasks(tasks.filter((task) => task.id !== taskId)); // Remove task locally
   };
 
-  // Function to toggle task completion status
+  // Function to toggle task completion
   const toggleCompleteTask = async (taskId) => {
     const taskToUpdate = tasks.find((task) => task.id === taskId);
     const updatedTask = { ...taskToUpdate, completed: !taskToUpdate.completed };
-    if (taskToUpdate && taskToUpdate.id) {
-      await updateTask(taskToUpdate.id, updatedTask); // Update the task on the server
-      const newTasks = tasks.map((task) =>
-        task.id === taskToUpdate.id ? { ...task, completed: !task.completed } : task
-      );
-      setTasks(newTasks);
-    }
+    await updateTask(taskId, updatedTask); // Update task on the server
+    setTasks(
+      tasks.map((task) =>
+        task.id === taskId ? { ...task, completed: !task.completed } : task
+      )
+    );
   };
 
-  // Function to edit a task
+  // Function to handle editing a task
   const handleEditTask = (taskId) => {
     const taskToEdit = tasks.find((task) => task.id === taskId);
     setInputValue(taskToEdit.name);
     setPriority(taskToEdit.priority);
     setDueDate(taskToEdit.dueDate);
     setIsEditing(true);
-    setCurrentTaskId(taskId);
+    setCurrentTaskId(taskId); // Track task ID for editing
   };
 
-  // Search tasks
+  // Filter tasks based on search query
   const filteredTasks = tasks.filter((task) =>
     task.name && task.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Check for overdue tasks
+  // Check if a task is overdue
   const isTaskOverdue = (task) => {
     const today = new Date().toISOString().split('T')[0];
     return task.dueDate && task.dueDate < today && !task.completed;
